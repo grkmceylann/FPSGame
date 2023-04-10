@@ -73,7 +73,7 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACharacterBase::Look);
 
 		//Store
-		EnhancedInputComponent->BindAction(OpenStoreAction, ETriggerEvent::Triggered, this, &ACharacterBase::OpenStore);
+		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &ACharacterBase::Fire);
 	}
 }
 
@@ -103,6 +103,8 @@ void ACharacterBase::Look(const FInputActionValue& Value)
 	}
 }
 
-void ACharacterBase::OpenStore_Implementation()
+void ACharacterBase::Fire()
 {
+	
 }
+

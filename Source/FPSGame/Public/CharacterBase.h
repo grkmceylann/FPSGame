@@ -41,7 +41,7 @@ class FPSGAME_API ACharacterBase : public ACharacter
 
 	/** Open Store Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* OpenStoreAction;
+	class UInputAction* FireAction;
 
 public:
 	// Sets default values for this character's properties
@@ -60,6 +60,9 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
+	/** Called for shooting / firing */
+	void Fire();
+
 public:
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -76,10 +79,7 @@ public:
 	/** Getter for the bool */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	bool GetHasWeapon() { return bHasWeapon;}
-
-	UFUNCTION(BlueprintNativeEvent, Category = "Input")
-	void OpenStore();
-
+	
 	/** Returns Mesh1P subobject **/
 	USkeletalMeshComponent* GetMesh1P() const {	return FirstPersonMesh; }
 
