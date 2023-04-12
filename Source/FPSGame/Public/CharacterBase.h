@@ -43,6 +43,9 @@ class FPSGAME_API ACharacterBase : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* FireAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* CrouchAction;
+
 public:
 	// Sets default values for this character's properties
 	ACharacterBase();
@@ -59,6 +62,12 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+
+	/** Called for crouch */
+	void BeginCrouch();
+
+	/** Called for uncrouch */
+	void EndCrouch();
 
 	/** Called for shooting / firing */
 	void Fire();
@@ -85,5 +94,5 @@ public:
 
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
-
 };
+
