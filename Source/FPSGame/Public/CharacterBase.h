@@ -81,6 +81,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon)
 	bool bHasWeapon;
 
+	virtual FVector GetPawnViewLocation() const;
+
 	/** Setter to set the bool */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void SetHasWeapon(const bool bNewHasWeapon) {	bHasWeapon = bNewHasWeapon;}
@@ -93,6 +95,7 @@ public:
 	USkeletalMeshComponent* GetMesh1P() const {	return FirstPersonMesh; }
 
 	/** Returns FirstPersonCameraComponent subobject **/
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 };
 

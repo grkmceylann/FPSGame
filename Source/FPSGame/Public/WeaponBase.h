@@ -7,6 +7,8 @@
 #include "WeaponBase.generated.h"
 
 class USkeletalMeshComponent;
+class UDamageType;
+class UParticleSystem;
 
 UCLASS()
 class FPSGAME_API AWeaponBase : public AActor
@@ -23,6 +25,21 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly,Category = "Components")
 	USkeletalMeshComponent* MeshComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<UDamageType> DamageType;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName MuzzleSocketName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UParticleSystem* MuzzleEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UParticleSystem* ImpactEffect;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void Fire();
 
 public:	
 	// Called every frame

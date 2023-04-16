@@ -127,3 +127,13 @@ void ACharacterBase::Fire()
 	
 }
 
+FVector ACharacterBase::GetPawnViewLocation() const
+{
+	if (GetFirstPersonCameraComponent())
+	{
+		return GetFirstPersonCameraComponent()->GetComponentLocation();
+	}
+
+	return Super::GetPawnViewLocation();
+}
+
