@@ -58,7 +58,7 @@ void AWeaponBase::Fire()
 			}
 		}
 
-		DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::White, false, 1.f, 0, 1.f);
+		//DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::White, false, 1.f, 0, 1.f);
 
 		if (MuzzleEffect)
 		{
