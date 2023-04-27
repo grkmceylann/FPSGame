@@ -13,6 +13,7 @@ class USceneComponent;
 class UCameraComponent;
 class UAnimMontage;
 class USoundBase;
+class AWeaponBase;
 
 UCLASS(config=Game)
 class FPSGAME_API ACharacterBase : public ACharacter
@@ -20,37 +21,48 @@ class FPSGAME_API ACharacterBase : public ACharacter
 	GENERATED_BODY()
 
 	/** Pawn mesh: 1st person view (arms; seen only by self) */
-	UPROPERTY(VisibleDefaultsOnly, Category= Mesh)
+	UPROPERTY(VisibleDefaultsOnly, Category = "CharacterBase|Components")
 	USkeletalMeshComponent* FirstPersonMesh;
 
 	/** First person camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CharacterBase|Components", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FirstPersonCameraComponent;
 
 	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CharacterBase|Input", meta = (AllowPrivateAccess = "true"))
 	class UInputMappingContext* DefaultMappingContext;
 
 	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CharacterBase|Input", meta = (AllowPrivateAccess = "true"))
 	class UInputAction* JumpAction;
 
 	/** Move Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CharacterBase|Input", meta = (AllowPrivateAccess = "true"))
 	class UInputAction* MoveAction;
 
 	/** Open Store Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CharacterBase|Input", meta = (AllowPrivateAccess = "true"))
 	class UInputAction* FireAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CharacterBase|Input", meta = (AllowPrivateAccess = "true"))
 	class UInputAction* CrouchAction;
 
 public:
+
 	// Sets default values for this character's properties
 	ACharacterBase();
 
 protected:
+
+	/** Player's current weapon */
+	AWeaponBase* CurrentWeapon;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterBase|Weapon")
+	TSubclassOf<AWeaponBase> StartWeaponClass;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "CharacterBase|Weapon")
+	FName WeaponSocketName;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -70,32 +82,36 @@ protected:
 	void EndCrouch();
 
 	/** Called for shooting / firing */
-	void Fire();
+
+	void StartFire();
+
+	void EndFire();
 
 public:
+
 	/** Look Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CharacterBase|Input", meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
 
 	/** Bool for AnimBP to switch to another animation set */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CharacterBase|Weapon")
 	bool bHasWeapon;
 
-	virtual FVector GetPawnViewLocation() const;
-
-	/** Setter to set the bool */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void SetHasWeapon(const bool bNewHasWeapon) {	bHasWeapon = bNewHasWeapon;}
+	virtual FVector GetPawnViewLocation() const override;
 
 	/** Getter for the bool */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "CharacterBase|Weapon")
 	bool GetHasWeapon() { return bHasWeapon;}
 	
 	/** Returns Mesh1P subobject **/
 	USkeletalMeshComponent* GetMesh1P() const {	return FirstPersonMesh; }
 
 	/** Returns FirstPersonCameraComponent subobject **/
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	UFUNCTION(BlueprintCallable, Category = "CharacterBase | Weapon")
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
+	/** Setter to set the bool */
+	UFUNCTION(BlueprintCallable, Category = "CharacterBase|Weapon")
+	void SetHasWeapon(const bool bNewHasWeapon) { bHasWeapon = bNewHasWeapon;}
 };
 

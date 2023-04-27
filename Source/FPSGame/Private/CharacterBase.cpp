@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "WeaponBase.h"
 #include "GameFramework/PawnMovementComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -40,6 +41,8 @@ ACharacterBase::ACharacterBase()
 	FirstPersonMesh->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
+
+	WeaponSocketName = "WeaponSocket";
 }
 
 // Called when the game starts or when spawned
@@ -54,6 +57,17 @@ void ACharacterBase::BeginPlay()
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
+	}
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	CurrentWeapon = GetWorld()->SpawnActor<AWeaponBase>(StartWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->SetOwner(this);
+		CurrentWeapon->AttachToComponent(GetMesh1P(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
 	}
 }
 
@@ -82,7 +96,7 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACharacterBase::Look);
 
 		//Store
-		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &ACharacterBase::Fire);
+		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &ACharacterBase::StartFire);
 	}
 }
 
@@ -122,9 +136,17 @@ void ACharacterBase::EndCrouch()
 	UnCrouch();
 }
 
-void ACharacterBase::Fire()
+void ACharacterBase::StartFire()
 {
-	
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->Fire();
+	}
+}
+
+void ACharacterBase::EndFire()
+{
+
 }
 
 FVector ACharacterBase::GetPawnViewLocation() const
