@@ -68,6 +68,7 @@ void ACharacterBase::BeginPlay()
 	{
 		CurrentWeapon->SetOwner(this);
 		CurrentWeapon->AttachToComponent(GetMesh1P(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
+		SetHasWeapon(true);
 	}
 }
 

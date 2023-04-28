@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "LegacyCameraShake.h"
 #include "GameFramework/Actor.h"
 #include "WeaponBase.generated.h"
 
@@ -42,6 +43,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "WeaponBase")
 	UParticleSystem* TraceEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponBase")
+	TSubclassOf<ULegacyCameraShake> FireCamShake;
 
 	virtual void PlayFireEffects(FVector TraceEnd);
 

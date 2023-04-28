@@ -26,8 +26,9 @@ AWeaponBase::AWeaponBase()
 
 void AWeaponBase::Fire()
 {
-	// Trace the world, from pawn eyes to crosshair location
+	// TODO: Make recoil for player
 
+	// Trace the world, from pawn eyes to crosshair location
 	AActor* MyOwner = GetOwner();
 	if (MyOwner)
 	{
@@ -90,4 +91,15 @@ void AWeaponBase::PlayFireEffects(FVector TraceEnd)
 			TracerComp->SetVectorParameter(TracerTargetName, TraceEnd);
 		}
 	}
+
+	APawn* MyOwner = Cast<APawn>(GetOwner());
+	if (MyOwner)
+	{
+		APlayerController* PlayerController = Cast<APlayerController>(MyOwner->GetController());
+		if (PlayerController)
+		{
+			PlayerController->ClientStartCameraShake(FireCamShake);
+		}
+	}
 }
+
