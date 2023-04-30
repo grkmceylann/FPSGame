@@ -40,7 +40,7 @@ ACharacterBase::ACharacterBase()
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	FirstPersonMesh->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 
-	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
+	ACharacter::GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
 	WeaponSocketName = "WeaponSocket";
 }
