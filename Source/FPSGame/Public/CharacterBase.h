@@ -40,10 +40,6 @@ class FPSGAME_API ACharacterBase : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CharacterBase|Input", meta = (AllowPrivateAccess = "true"))
 	class UInputAction* MoveAction;
 
-	/** Open Store Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CharacterBase|Input", meta = (AllowPrivateAccess = "true"))
-	class UInputAction* FireAction;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CharacterBase|Input", meta = (AllowPrivateAccess = "true"))
 	class UInputAction* CrouchAction;
 
@@ -84,9 +80,7 @@ protected:
 	/** Called for shooting / firing */
 
 	void StartFire();
-
-	void EndFire();
-
+	
 public:
 
 	/** Look Input Action */

@@ -10,6 +10,7 @@
 class USkeletalMeshComponent;
 class UDamageType;
 class UParticleSystem;
+class ACharacterBase;
 
 UCLASS()
 class FPSGAME_API AWeaponBase : public AActor
@@ -22,6 +23,8 @@ public:
 	AWeaponBase();
 
 protected:
+
+	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly,Category = "Components")
 	USkeletalMeshComponent* MeshComponent;
@@ -50,11 +53,34 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "WeaponBase")
 	TSubclassOf<ULegacyCameraShake> FireCamShake;
 
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponBase")
+	float BaseDamage;
+
+	/* RPM - Bullets per minute fired by weapon*/
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponBase")
+	float RateOfFire;
+
+	/** MappingContext */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WeaponBase|Input", meta = (AllowPrivateAccess = "true"))
+	class UInputMappingContext* WeaponMappingContext;
+
+	/** Shooting Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WeaponBase|Input", meta = (AllowPrivateAccess = "true"))
+	class UInputAction* WeaponFireAction;
+
 	virtual void PlayFireEffects(FVector TraceEnd);
+
+	UFUNCTION()
+	virtual void Fire();
+
+	float LastFiredTime;
+
+	// Derived from RateOfFire
+	float TimeBetweenShots;
 
 public:
 
-	UFUNCTION(BlueprintCallable, Category = "WeaponBase")
-	virtual void Fire();
+	void StartFire();
 
+	void AttachWeapon(const ACharacterBase* Character);
 };

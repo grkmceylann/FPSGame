@@ -69,6 +69,7 @@ void ACharacterBase::BeginPlay()
 		CurrentWeapon->SetOwner(this);
 		CurrentWeapon->AttachToComponent(GetMesh1P(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
 		SetHasWeapon(true);
+		CurrentWeapon->AttachWeapon(this);
 	}
 }
 
@@ -95,9 +96,6 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACharacterBase::Look);
-
-		//Store
-		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &ACharacterBase::StartFire);
 	}
 }
 
@@ -141,13 +139,8 @@ void ACharacterBase::StartFire()
 {
 	if (CurrentWeapon)
 	{
-		CurrentWeapon->Fire();
+		CurrentWeapon->StartFire();
 	}
-}
-
-void ACharacterBase::EndFire()
-{
-
 }
 
 FVector ACharacterBase::GetPawnViewLocation() const

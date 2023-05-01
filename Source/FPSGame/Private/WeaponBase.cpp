@@ -2,11 +2,16 @@
 
 
 #include "WeaponBase.h"
+
+#include "CharacterBase.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include "TimerManager.h"
 #include "FPSGame/FPSGame.h"
 
 static int32 DebugWeaponDrawing = 0;
@@ -24,6 +29,23 @@ AWeaponBase::AWeaponBase()
 
 	MuzzleSocketName = "MuzzleSocket";
 	TracerTargetName = "Target";
+
+	BaseDamage = 20.f;
+
+	RateOfFire = 600;
+}
+
+void AWeaponBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	TimeBetweenShots = 60 / RateOfFire;
+
+
+	if (UInputTriggerPulse* InputTrigger = Cast<UInputTriggerPulse>(WeaponFireAction->Triggers[0]))
+	{
+		InputTrigger->Interval = TimeBetweenShots;
+	}
 }
 
 void AWeaponBase::Fire()
@@ -31,8 +53,7 @@ void AWeaponBase::Fire()
 	// TODO: Make recoil for player
 
 	// Trace the world, from pawn eyes to crosshair location
-	AActor* MyOwner = GetOwner();
-	if (MyOwner)
+	if (AActor* MyOwner = GetOwner())
 	{
 		FVector EyeLocation;
 		FRotator EyeRotation;
@@ -57,10 +78,17 @@ void AWeaponBase::Fire()
 
 			AActor* HitActor = Hit.GetActor();
 
-			UGameplayStatics::ApplyPointDamage(HitActor, 20.f, ShotDirection, Hit, MyOwner->GetInstigatorController(),
+			EPhysicalSurface SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+
+			float ActualDamage = BaseDamage;
+			if (SurfaceType == SURFACE_FLESHVULNERABLE)
+			{
+				ActualDamage *= 4.f;
+			}
+
+			UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit, MyOwner->GetInstigatorController(),
 			                                   this, DamageType);
 
-			EPhysicalSurface SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
 			UParticleSystem* SelectedParticleEffect = nullptr;
 			switch (SurfaceType)
 			{
@@ -88,6 +116,44 @@ void AWeaponBase::Fire()
 		}
 
 		PlayFireEffects(TracerEndPoint);
+
+		LastFiredTime = GetWorld()->TimeSeconds;
+
+	}
+}
+
+void AWeaponBase::StartFire()
+{
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, 
+										 FString::Printf(TEXT("time: %f"), LastFiredTime + TimeBetweenShots - GetWorld()->TimeSeconds));
+	}
+	if (LastFiredTime + TimeBetweenShots - GetWorld()->TimeSeconds <= TimeBetweenShots)
+	{
+		Fire();
+	}
+	// GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AWeaponBase::Fire, TimeBetweenShots, true, FirstDelay);
+}
+
+void AWeaponBase::AttachWeapon(const ACharacterBase* Character)
+{
+	if (Character)
+	{
+		if (const APlayerController* PlayerController = Cast<APlayerController>(Character->GetController()))
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+			{
+				// Set the priority of the mapping to 1, so that it overrides the Jump action with the Fire action when using touch input
+				Subsystem->AddMappingContext(WeaponMappingContext, 1);
+			}
+
+			if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerController->InputComponent))
+			{
+				// Fire
+				EnhancedInputComponent->BindAction(WeaponFireAction, ETriggerEvent::Triggered, this, &AWeaponBase::StartFire);
+			}
+		}
 	}
 }
 
@@ -100,7 +166,7 @@ void AWeaponBase::PlayFireEffects(FVector TraceEnd)
 
 	if (TraceEffect)
 	{
-		FVector MuzzleLocation = MeshComponent->GetSocketLocation(MuzzleSocketName);
+		const FVector MuzzleLocation = MeshComponent->GetSocketLocation(MuzzleSocketName);
 
 		if (UParticleSystemComponent* TracerComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TraceEffect,
 			MuzzleLocation))
@@ -109,11 +175,9 @@ void AWeaponBase::PlayFireEffects(FVector TraceEnd)
 		}
 	}
 
-	APawn* MyOwner = Cast<APawn>(GetOwner());
-	if (MyOwner)
+	if (const APawn* MyOwner = Cast<APawn>(GetOwner()))
 	{
-		APlayerController* PlayerController = Cast<APlayerController>(MyOwner->GetController());
-		if (PlayerController)
+		if (APlayerController* PlayerController = Cast<APlayerController>(MyOwner->GetController()))
 		{
 			PlayerController->ClientStartCameraShake(FireCamShake);
 		}
