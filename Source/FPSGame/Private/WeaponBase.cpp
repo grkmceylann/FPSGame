@@ -40,12 +40,6 @@ void AWeaponBase::BeginPlay()
 	Super::BeginPlay();
 
 	TimeBetweenShots = 60 / RateOfFire;
-
-
-	if (UInputTriggerPulse* InputTrigger = Cast<UInputTriggerPulse>(WeaponFireAction->Triggers[0]))
-	{
-		InputTrigger->Interval = TimeBetweenShots;
-	}
 }
 
 void AWeaponBase::Fire()
@@ -124,16 +118,16 @@ void AWeaponBase::Fire()
 
 void AWeaponBase::StartFire()
 {
+	float time = FMath::Max(LastFiredTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0);
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, 
-										 FString::Printf(TEXT("time: %f"), LastFiredTime + TimeBetweenShots - GetWorld()->TimeSeconds));
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red,FString::Printf(TEXT("time: %f"), time));
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red,FString::Printf(TEXT("time: %f"), TimeBetweenShots));
 	}
-	if (LastFiredTime + TimeBetweenShots - GetWorld()->TimeSeconds <= TimeBetweenShots)
+	if (0 == time)
 	{
 		Fire();
 	}
-	// GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AWeaponBase::Fire, TimeBetweenShots, true, FirstDelay);
 }
 
 void AWeaponBase::AttachWeapon(const ACharacterBase* Character)
