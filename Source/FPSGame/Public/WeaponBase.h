@@ -53,19 +53,27 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "WeaponBase")
 	TSubclassOf<ULegacyCameraShake> FireCamShake;
 
-	UPROPERTY(EditDefaultsOnly, Category = "WeaponBase")
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponBase|Config")
 	float BaseDamage;
 
 	/* RPM - Bullets per minute fired by weapon*/
-	UPROPERTY(EditDefaultsOnly, Category = "WeaponBase")
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponBase|Config")
 	float RateOfFire;
 
+	/* How much camera move up on Fire*/
+	UPROPERTY(EditDefaultsOnly, Category="WeaponBase|Config")
+	float RecoilAmountOnPitch;
+
+	/* How much camera move to sides on Fire. Positive for right and negative for left. */
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponBase|Config")
+	float RecoilAmountOnYaw;
+
 	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WeaponBase|Input", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WeaponBase|Input")
 	class UInputMappingContext* WeaponMappingContext;
 
 	/** Shooting Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WeaponBase|Input", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WeaponBase|Input")
 	class UInputAction* WeaponFireAction;
 
 	virtual void PlayFireEffects(FVector TraceEnd);

@@ -24,15 +24,23 @@ FAutoConsoleVariableRef CVARDebugWeaponDrawing (
 // Sets default values
 AWeaponBase::AWeaponBase()
 {
+	// Components
 	MeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComponent"));
 	RootComponent = MeshComponent;
 
+	// Name Definitions
 	MuzzleSocketName = "MuzzleSocket";
 	TracerTargetName = "Target";
 
+	// Damage
 	BaseDamage = 20.f;
 
+	// RateOfFire
 	RateOfFire = 600;
+
+	// Recoil
+	RecoilAmountOnPitch = 1.f;
+	RecoilAmountOnYaw = 1.f;
 }
 
 void AWeaponBase::BeginPlay()
@@ -47,7 +55,7 @@ void AWeaponBase::Fire()
 	// TODO: Make recoil for player
 
 	// Trace the world, from pawn eyes to crosshair location
-	if (AActor* MyOwner = GetOwner())
+	if (ACharacter* MyOwner = Cast<ACharacter>(GetOwner()))
 	{
 		FVector EyeLocation;
 		FRotator EyeRotation;
@@ -56,6 +64,7 @@ void AWeaponBase::Fire()
 		FVector ShotDirection = EyeRotation.Vector();
 		FVector TraceEnd = EyeLocation + (EyeRotation.Vector() * 10000);
 
+		// Collision query parameters for HitTrace
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(MyOwner);
 		QueryParams.AddIgnoredActor(this);
@@ -68,7 +77,7 @@ void AWeaponBase::Fire()
 		FHitResult Hit;
 		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, COLLISION_WEAPON, QueryParams))
 		{
-			// Blocking hit proccess damage
+			// Blocking hit process damage
 
 			AActor* HitActor = Hit.GetActor();
 
@@ -103,6 +112,11 @@ void AWeaponBase::Fire()
 
 			TracerEndPoint = Hit.ImpactPoint;
 		}
+
+		// TODO: Make the recoil based on function so we can have actual recoil. You can connect it to a counter which is resets on input released or canceled.
+		// Weapon recoil
+		MyOwner->AddControllerPitchInput(-RecoilAmountOnPitch);
+		MyOwner->AddControllerYawInput(-RecoilAmountOnYaw);
 
 		if (DebugWeaponDrawing)
 		{
