@@ -56,6 +56,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "WeaponBase|Config")
 	float BaseDamage;
 
+	UPROPERTY(BlueprintReadOnly, Category = "WeaponBase")
+	int32 CurrentAmmo;
+
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponBase|Config")
+	int32 MaxAmmo;
+
 	/* RPM - Bullets per minute fired by weapon*/
 	UPROPERTY(EditDefaultsOnly, Category = "WeaponBase|Config")
 	float RateOfFire;
@@ -76,10 +82,16 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WeaponBase|Input")
 	class UInputAction* WeaponFireAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WeaponBase|Input")
+	class UInputAction* WeaponReloadAction;
+
 	virtual void PlayFireEffects(FVector TraceEnd);
 
 	UFUNCTION()
 	virtual void Fire();
+
+	UFUNCTION()
+	virtual void Reload();
 
 	float LastFiredTime;
 
@@ -91,4 +103,10 @@ public:
 	void StartFire();
 
 	void AttachWeapon(const ACharacterBase* Character);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "WeaponBase|Getters")
+	int32 GetMaxAmmo() const { return MaxAmmo; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "WeaponBase|Getters")
+	int32 GetCurrentAmmo() const { return CurrentAmmo; }
 };

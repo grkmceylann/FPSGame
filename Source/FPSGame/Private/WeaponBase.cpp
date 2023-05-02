@@ -11,7 +11,6 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
-#include "TimerManager.h"
 #include "FPSGame/FPSGame.h"
 
 static int32 DebugWeaponDrawing = 0;
@@ -41,6 +40,9 @@ AWeaponBase::AWeaponBase()
 	// Recoil
 	RecoilAmountOnPitch = 1.f;
 	RecoilAmountOnYaw = 1.f;
+
+	// Ammo
+	MaxAmmo = 30;
 }
 
 void AWeaponBase::BeginPlay()
@@ -48,14 +50,16 @@ void AWeaponBase::BeginPlay()
 	Super::BeginPlay();
 
 	TimeBetweenShots = 60 / RateOfFire;
+
+	CurrentAmmo = MaxAmmo;
 }
 
 void AWeaponBase::Fire()
 {
-	// TODO: Make recoil for player
+	ACharacter* MyOwner = Cast<ACharacter>(GetOwner());
 
 	// Trace the world, from pawn eyes to crosshair location
-	if (ACharacter* MyOwner = Cast<ACharacter>(GetOwner()))
+	if (MyOwner && CurrentAmmo > 0)
 	{
 		FVector EyeLocation;
 		FRotator EyeRotation;
@@ -92,6 +96,7 @@ void AWeaponBase::Fire()
 			UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit, MyOwner->GetInstigatorController(),
 			                                   this, DamageType);
 
+
 			UParticleSystem* SelectedParticleEffect = nullptr;
 			switch (SurfaceType)
 			{
@@ -126,19 +131,19 @@ void AWeaponBase::Fire()
 		PlayFireEffects(TracerEndPoint);
 
 		LastFiredTime = GetWorld()->TimeSeconds;
-
+		CurrentAmmo--;
 	}
+}
+
+void AWeaponBase::Reload()
+{
+	// TODO: Make the reload animation
+	CurrentAmmo = MaxAmmo;
 }
 
 void AWeaponBase::StartFire()
 {
-	float time = FMath::Max(LastFiredTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0);
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red,FString::Printf(TEXT("time: %f"), time));
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red,FString::Printf(TEXT("time: %f"), TimeBetweenShots));
-	}
-	if (0 == time)
+	if (0 == FMath::Max(LastFiredTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0))
 	{
 		Fire();
 	}
@@ -160,6 +165,7 @@ void AWeaponBase::AttachWeapon(const ACharacterBase* Character)
 			{
 				// Fire
 				EnhancedInputComponent->BindAction(WeaponFireAction, ETriggerEvent::Triggered, this, &AWeaponBase::StartFire);
+				EnhancedInputComponent->BindAction(WeaponReloadAction, ETriggerEvent::Triggered, this, &AWeaponBase::Reload);
 			}
 		}
 	}

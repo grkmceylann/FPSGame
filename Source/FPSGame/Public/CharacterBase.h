@@ -106,6 +106,9 @@ public:
 
 	/** Setter to set the bool */
 	UFUNCTION(BlueprintCallable, Category = "CharacterBase|Weapon")
-	void SetHasWeapon(const bool bNewHasWeapon) { bHasWeapon = bNewHasWeapon;}
+	void SetHasWeapon(const bool bNewHasWeapon) { bHasWeapon = bNewHasWeapon; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CharacterBase|Getters")
+	AWeaponBase* GetCurrentWeapon() const {	return CurrentWeapon; }
 };
 
